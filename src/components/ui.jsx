@@ -1,10 +1,10 @@
 import { ArrowUpRight, ChevronRight, CircleAlert, Sparkles, X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-export function Panel({ children, className = '', title, eyebrow, action }) {
+export function Panel({ children, className = '', title, eyebrow, action, style }) {
   return (
-    <section className={`panel ${className}`}>
+    <section className={`panel ${className}`} style={style}>
       {(title || eyebrow || action) && (
         <header className="panel-header">
           <div>
@@ -34,6 +34,33 @@ export function Button({ children, variant = 'primary', icon, ...props }) {
 
 export function ProgressBar({ value, tone = 'cyan' }) {
   return <div className="progress-track"><span className={`progress-fill progress-${tone}`} style={{ width: `${value}%` }} /></div>
+}
+
+export function AnimatedNumber({ value, duration = 900, decimals = 0, suffix = '' }) {
+  const target = Number(value)
+  const [display, setDisplay] = useState(0)
+  useEffect(() => {
+    const start = performance.now()
+    let frame
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1)
+      const eased = 1 - ((1 - progress) ** 3)
+      setDisplay(target * eased)
+      if (progress < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [duration, target])
+  return <>{display.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</>
+}
+
+export function RiskScore({ value, compact = false }) {
+  const tone = value >= 75 ? 'red' : value >= 55 ? 'amber' : 'green'
+  return <div className={`risk-score risk-score-${tone} ${compact ? 'risk-score-compact' : ''}`} title="Higher score means higher modeled risk"><div className="risk-score-ring" style={{ '--risk-value': value }}><span><AnimatedNumber value={value} /></span></div><div><strong>{value >= 75 ? 'HIGH RISK' : value >= 55 ? 'MONITORING' : 'STABLE'}</strong><small>higher score = higher risk</small></div></div>
+}
+
+export function PageTransition({ children }) {
+  return <div className="page-transition">{children}</div>
 }
 
 export function SectionHeading({ eyebrow, title, copy, action }) {
@@ -69,7 +96,7 @@ export function MiniSparkline({ values, tone = 'cyan' }) {
   }).join(' ')
   return (
     <svg className={`sparkline sparkline-${tone}`} viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
-      <polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+      <polyline className="sparkline-line" points={points} fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
     </svg>
   )
 }

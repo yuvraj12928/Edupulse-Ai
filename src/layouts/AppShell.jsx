@@ -6,10 +6,10 @@ import { Modal } from '../components/ui'
 
 const navGroups = [
   { label: 'Command center', items: [{ label: 'Overview', to: '/dashboard', icon: Gauge }] },
-  { label: 'Students', items: [{ label: 'All students', to: '/students', icon: Users }, { label: 'At-risk students', to: '/students?risk=high', icon: Target }, { label: 'High performers', to: '/students?type=high-performer', icon: GraduationCap }, { label: 'Student groups', to: '/students/groups', icon: LayoutGrid }] },
+  { label: 'Students', items: [{ label: 'All students', to: '/students', icon: Users }, { label: 'At-risk students', to: '/students?risk=high', icon: Target, badge: '142', badgeTone: 'red' }, { label: 'High performers', to: '/students?type=high-performer', icon: GraduationCap }, { label: 'Student groups', to: '/students/groups', icon: LayoutGrid }] },
   { label: 'Intelligence', items: [{ label: 'Early warning', to: '/early-warning', icon: Target }, { label: 'Predictions', to: '/predictions', icon: BrainCircuit }, { label: 'What-if simulator', to: '/simulator', icon: Sparkles }, { label: 'AI insights', to: '/ai-insights', icon: GraduationCap }] },
   { label: 'Analytics', items: [{ label: 'Academic', to: '/analytics/academic', icon: GraduationCap }, { label: 'Attendance', to: '/analytics/attendance', icon: Target }, { label: 'Engagement', to: '/analytics/engagement', icon: Sparkles }, { label: 'Courses', to: '/courses', icon: GraduationCap }, { label: 'Departments', to: '/departments', icon: LayoutGrid }] },
-  { label: 'Interventions', items: [{ label: 'Recommended', to: '/interventions?status=recommended', icon: Sparkles }, { label: 'Active', to: '/interventions?status=active', icon: Target }, { label: 'Completed', to: '/interventions?status=completed', icon: GraduationCap }, { label: 'Effectiveness', to: '/interventions/effectiveness', icon: BrainCircuit }] },
+  { label: 'Interventions', items: [{ label: 'Recommended', to: '/interventions?status=recommended', icon: Sparkles, badge: '24', badgeTone: 'purple' }, { label: 'Active', to: '/interventions?status=active', icon: Target, badge: '12', badgeTone: 'blue' }, { label: 'Completed', to: '/interventions?status=completed', icon: GraduationCap }, { label: 'Effectiveness', to: '/interventions/effectiveness', icon: BrainCircuit }] },
 ]
 
 const commands = [
@@ -29,6 +29,8 @@ export default function AppShell() {
   const [searchQuery, setSearchQuery] = useState('')
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [workspaceOpen, setWorkspaceOpen] = useState(false)
+  const [workspace, setWorkspace] = useState('Northstar University')
   const current = location.pathname === '/' || location.pathname === '/dashboard' ? 'Overview' : location.pathname.split('/').filter(Boolean).join(' / ')
   const filteredCommands = useMemo(() => commands.filter(([label]) => label.toLowerCase().includes(paletteQuery.toLowerCase())), [paletteQuery])
   const searchResults = useMemo(() => searchQuery.trim().length < 2 ? [] : students.filter((student) => `${student.name} ${student.department}`.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5), [searchQuery, students])
@@ -59,25 +61,27 @@ export default function AppShell() {
           {!collapsed && <div><strong>edupulse</strong><small>AI / intelligence layer</small></div>}
           <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={18} /></button>
         </div>
-        <div className="workspace-switcher">
+        <button className="workspace-switcher" onClick={() => setWorkspaceOpen(!workspaceOpen)} aria-expanded={workspaceOpen}>
           <div className="workspace-icon">N</div>
-          {!collapsed && <div className="workspace-copy"><span>Northstar University</span><small>Institution workspace</small></div>}
+          {!collapsed && <div className="workspace-copy"><span>{workspace}</span><small>Institution workspace</small></div>}
           {!collapsed && <ChevronDown size={15} />}
-        </div>
+        </button>
+        {workspaceOpen && <div className="workspace-menu"><button onClick={() => { setWorkspace('Northstar University'); setWorkspaceOpen(false) }}><strong>Northstar University</strong><small>1,842 monitored students</small></button><button onClick={() => { setWorkspace('Demo Sandbox'); setWorkspaceOpen(false) }}><strong>Demo Sandbox</strong><small>Deterministic test workspace</small></button></div>}
         <nav className="main-nav">
           {navGroups.map((group) => (
             <div className="nav-group" key={group.label}>
               {!collapsed && <p className="nav-label">{group.label}</p>}
-              {group.items.map(({ label, to, icon: Icon }) => (
+              {group.items.map(({ label, to, icon: Icon, badge, badgeTone }) => (
                 <NavLink key={to} to={to} className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`} onClick={() => setMobileOpen(false)} title={collapsed ? label : undefined}>
                   <Icon size={17} strokeWidth={1.8} />
-                  {!collapsed && <span>{label}</span>}
+                  {!collapsed && <><span>{label}</span>{badge && <b className={`nav-badge nav-badge-${badgeTone}`}>{badge}</b>}</>}
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
         <div className="sidebar-footer">
+          {!collapsed && <div className="sidebar-ai-card"><div className="sidebar-ai-icon"><Sparkles size={16} /></div><strong>Smarter decisions.<br />Brighter futures.</strong><small>AI guidance is active</small><button onClick={() => navigate('/ai-copilot')}>Open Copilot <ChevronDown size={13} /></button></div>}
           <NavLink to="/ai-copilot" className="nav-link"><Command size={17} /><span>AI Copilot</span></NavLink>
           <NavLink to="/reports" className="nav-link"><Command size={17} /><span>Reports</span></NavLink>
           <NavLink to="/notifications" className="nav-link"><Bell size={17} /><span>Notifications</span></NavLink>

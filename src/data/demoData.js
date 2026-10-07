@@ -3,6 +3,7 @@ export const kpis = [
   { label: 'Success rate', value: '82.4%', delta: '+4.2%', note: 'institution-wide', tone: 'green' },
   { label: 'At-risk students', value: '142', delta: '-12.5%', note: 'since last review', tone: 'amber' },
   { label: 'Critical cases', value: '18', delta: '+2', note: 'needs action today', tone: 'red' },
+  { label: 'Avg. attendance', value: '84.2%', delta: '+5.7%', note: 'institution-wide', tone: 'cyan' },
 ]
 
 export const riskTrend = [
