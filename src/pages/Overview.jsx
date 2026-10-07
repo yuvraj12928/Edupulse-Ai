@@ -1,0 +1,40 @@
+import { ArrowUpRight, CalendarDays, ChevronRight, MoreHorizontal, Plus, ShieldCheck, UsersRound } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { atRiskStudents, departmentData, kpis, riskTrend } from '../data/demoData'
+import { Button, LinkRow, MiniSparkline, Panel, ProgressBar, RiskSignal, SectionHeading, StatusBadge, ViewAll } from '../components/ui'
+import { useApp } from '../context/AppContext'
+
+function KpiCard({ item, index }) {
+  const navigate = useNavigate(); const paths = ['/students', '/analytics/academic', '/students?risk=high', '/students?risk=critical']
+  return <button className={`kpi-card kpi-${item.tone}`} style={{ '--delay': `${index * 80}ms` }} onClick={() => navigate(paths[index])}><div className="kpi-top"><span>{item.label}</span><MoreHorizontal size={16} /></div><div className="kpi-value">{item.value}</div><div className="kpi-bottom"><span className={`delta delta-${item.tone}`}>{item.delta}</span><span>{item.note}</span><MiniSparkline tone={item.tone} values={index === 2 ? [30, 29, 26, 25, 23, 20] : [20, 24, 21, 27, 31, 35]} /></div></button>
+}
+
+export default function Overview() {
+  const navigate = useNavigate(); const { notify } = useApp()
+  return <div className="overview-page">
+    <SectionHeading eyebrow="Wednesday, 12 February 2025 · live snapshot" title="Student success command center" copy="A clear view of who needs attention, why their trajectory is shifting, and where your next intervention will matter most." action={<div className="heading-actions"><Button variant="secondary" icon={<CalendarDays size={16} />} onClick={() => notify('Date range set to the last 30 days.', 'info')}>Last 30 days</Button><Button icon={<Plus size={16} />} onClick={() => navigate('/interventions?status=recommended')}>New intervention</Button></div>} />
+    <div className="signal-banner"><div className="signal-pulse" /><div><strong>Signal detected</strong><span>3 students entered high-risk status since yesterday's review.</span></div><button onClick={() => navigate('/early-warning')}>Review now <ArrowUpRight size={15} /></button></div>
+    <div className="kpi-grid">{kpis.map((item, index) => <KpiCard key={item.label} item={item} index={index} />)}</div>
+    <div className="dashboard-grid dashboard-grid-main">
+      <Panel className="trajectory-panel" eyebrow="Institution trajectory" title="Risk is trending down" action={<button className="icon-button" onClick={() => navigate('/early-warning')} aria-label="Open risk trend"><MoreHorizontal size={17} /></button>}>
+        <div className="chart-legend"><span><i className="legend-dot dot-cyan" /> Stable cohort</span><span><i className="legend-dot dot-red" /> At-risk cohort</span><strong>6 month view</strong></div>
+        <ResponsiveContainer width="100%" height={245}><AreaChart data={riskTrend} onClick={() => navigate('/early-warning')} margin={{ top: 15, right: 8, left: -24, bottom: 0 }}><defs><linearGradient id="stableFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#57d6d0" stopOpacity={0.2} /><stop offset="100%" stopColor="#57d6d0" stopOpacity={0} /></linearGradient><linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f27d72" stopOpacity={0.18} /><stop offset="100%" stopColor="#f27d72" stopOpacity={0} /></linearGradient></defs><CartesianGrid stroke="#243032" vertical={false} /><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6f8583', fontSize: 10, fontWeight: 700 }} dy={10} /><YAxis axisLine={false} tickLine={false} tick={{ fill: '#6f8583', fontSize: 10 }} /><Tooltip contentStyle={{ background: '#172120', border: '1px solid #354744', borderRadius: 8, color: '#f2f5ee' }} /><Area type="monotone" dataKey="stable" stroke="#57d6d0" fill="url(#stableFill)" strokeWidth={2} /><Area type="monotone" dataKey="risk" stroke="#f27d72" fill="url(#riskFill)" strokeWidth={2} /></AreaChart></ResponsiveContainer>
+      </Panel>
+      <Panel className="distribution-panel" eyebrow="Risk distribution" title="Cohort health" action={<button className="icon-button" onClick={() => navigate('/students?risk=high')} aria-label="Open risk distribution"><MoreHorizontal size={17} /></button>}>
+        <div className="donut-wrap"><ResponsiveContainer width="100%" height={190}><PieChart><Pie data={[{ name: 'Stable', value: 67 }, { name: 'Monitoring', value: 21 }, { name: 'High risk', value: 9 }, { name: 'Critical', value: 3 }]} innerRadius={63} outerRadius={82} paddingAngle={4} dataKey="value" stroke="none"><Cell fill="#57d6d0" /><Cell fill="#f4b860" /><Cell fill="#f27d72" /><Cell fill="#ca554f" /></Pie><text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle" fill="#f2f5ee" fontSize="25" fontWeight="700">82.4%</text><text x="50%" y="61%" textAnchor="middle" dominantBaseline="middle" fill="#7e9290" fontSize="10">SUCCESS RATE</text></PieChart></ResponsiveContainer></div>
+        <div className="distribution-list"><div><i className="legend-dot dot-cyan" /><span>Stable</span><strong>1,237</strong></div><div><i className="legend-dot dot-amber" /><span>Monitoring</span><strong>387</strong></div><div><i className="legend-dot dot-red" /><span>High / critical</span><strong>218</strong></div></div>
+      </Panel>
+    </div>
+    <div className="dashboard-grid dashboard-grid-secondary">
+      <Panel eyebrow="Priority queue" title="Students needing attention" action={<ViewAll onClick={() => navigate('/students?risk=high')}>View queue</ViewAll>}>
+        <div className="table-wrap"><table><thead><tr><th>Student</th><th>Risk</th><th>Attendance</th><th>Next best action</th><th /></tr></thead><tbody>{atRiskStudents.map((student) => <tr className="clickable-row" onClick={() => navigate(`/students/${student.name.toLowerCase().replace(' ', '-')}`)} key={student.name}><td><div className="student-cell"><div className="avatar avatar-student">{student.initials}</div><div><strong>{student.name}</strong><small>{student.meta}</small></div></div></td><td><RiskSignal value={student.risk} /></td><td><div className="attendance-cell"><span>{student.attendance}</span><ProgressBar value={parseInt(student.attendance)} tone={student.risk > 75 ? 'red' : 'amber'} /><small>{student.trend}</small></div></td><td><StatusBadge tone={student.risk > 75 ? 'red' : 'amber'}>{student.action}</StatusBadge></td><td><button className="icon-button" onClick={(event) => { event.stopPropagation(); navigate(`/students/${student.name.toLowerCase().replace(' ', '-')}`) }} aria-label={`Open ${student.name}`}><ChevronRight size={16} /></button></td></tr>)}</tbody></table></div>
+      </Panel>
+      <Panel eyebrow="Department pulse" title="Performance by department" action={<button className="icon-button" onClick={() => navigate('/departments')} aria-label="Open departments"><MoreHorizontal size={17} /></button>}>
+        <ResponsiveContainer width="100%" height={218}><BarChart data={departmentData} layout="vertical" margin={{ top: 2, right: 18, left: -15, bottom: 2 }}><CartesianGrid stroke="#243032" horizontal={false} /><XAxis type="number" domain={[0, 100]} hide /><YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#a9b9b4', fontSize: 11, fontWeight: 700 }} /><Tooltip cursor={{ fill: '#20302e' }} contentStyle={{ background: '#172120', border: '1px solid #354744', borderRadius: 8, color: '#f2f5ee' }} /><Bar dataKey="success" radius={[0, 4, 4, 0]} barSize={13}>{departmentData.map((entry) => <Cell fill={entry.color} key={entry.name} />)}</Bar></BarChart></ResponsiveContainer>
+        <LinkRow to="/analytics/departments">Open department intelligence</LinkRow>
+      </Panel>
+    </div>
+    <div className="bottom-strip"><div><ShieldCheck size={18} /><div><strong>Model health is good</strong><span>Last calibrated 2 hours ago · 91% confidence on current cohort</span></div></div><div><UsersRound size={18} /><div><strong>1,842 active profiles</strong><span>Data freshness: 14 minutes ago</span></div></div></div>
+  </div>
+}
