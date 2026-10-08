@@ -24,6 +24,18 @@ Open `http://localhost:5173`.
 
 Create a local `.env` from `.env.example` when wiring the API. The Phase 1 shell runs without a backend in demo mode.
 
+## Demo authentication
+
+The frontend includes a deterministic demo authentication fallback while backend services are unavailable. Use any of these accounts with password `EduPulse2025!`:
+
+- `admin@edupulse.demo`
+- `faculty@edupulse.demo`
+- `mentor@edupulse.demo`
+- `hod@edupulse.demo`
+- `student@edupulse.demo`
+
+When `VITE_DEMO_MODE=false` and `VITE_API_URL` is configured, login, logout, profile updates, and password changes use the Node API contract.
+
 ## Architecture
 
 ```text
