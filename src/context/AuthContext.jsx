@@ -15,6 +15,6 @@ export function AuthProvider({ children }) {
   const updateProfile = async (changes) => { setLoading(true); try { const user = await updateProfileRequest({ ...session.user, ...changes }, session.token); const next = { ...session, user }; setSession(next); return user } finally { setLoading(false) } }
   const changePassword = async (currentPassword, newPassword) => { setLoading(true); try { await changePasswordRequest(session.user.email, currentPassword, newPassword, session?.token) } finally { setLoading(false) } }
   const value = useMemo(() => ({ user: session?.user || null, token: session?.token || null, isAuthenticated: Boolean(session?.token), loading, authChecked, authMessage, setAuthMessage, login, logout, updateProfile, changePassword }), [session, loading, authChecked, authMessage])
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}{authMessage && <div className="toast toast-success" role="status">✓ {authMessage}</div>}</AuthContext.Provider>
 }
 export function useAuth() { const context = useContext(AuthContext); if (!context) throw new Error('useAuth must be used inside AuthProvider'); return context }
