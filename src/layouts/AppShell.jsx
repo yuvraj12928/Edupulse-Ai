@@ -71,7 +71,7 @@ export default function AppShell() {
       <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''} ${mobileOpen ? 'sidebar-mobile-open' : ''}`}>
         <div className="brand-lockup">
           <div className="brand-mark"><span /><span /><span /></div>
-          {!collapsed && <div><strong>veyra</strong><small>AI / intelligence layer</small></div>}
+          {!collapsed && <div><strong>Veyra</strong><small>AI / intelligence layer</small></div>}
           <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={18} /></button>
         </div>
         <button className="workspace-switcher" onClick={() => setWorkspaceOpen(!workspaceOpen)} aria-expanded={workspaceOpen}>
